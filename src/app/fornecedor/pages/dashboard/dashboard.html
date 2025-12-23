@@ -1,0 +1,125 @@
+<!-- fornecedor/pages/dashboard/dashboard.component.html -->
+<div class="container-fluid dashboard-page">
+
+  <!-- TÍTULO -->
+  <div class="row mb-4">
+    <div class="col">
+      <h2 class="mb-0">Dashboard</h2>
+      <small class="text-muted">Visão geral das oportunidades e propostas</small>
+    </div>
+  </div>
+
+  <!-- Mensagem de alerta -->
+  <div
+    *ngIf="mensagemOportunidades()!='' || mensagemMinhasPropostas()!='' || mensagemAguardandoRetorno()!='' || mensagemFinalizadas()!=''"
+    class="alert alert-danger alert-dismissible fade show">
+    <strong>
+      <div *ngIf="mensagemOportunidades()!=''">
+        {{mensagemOportunidades()}}
+      </div>
+      <div *ngIf="mensagemMinhasPropostas()!=''">
+        {{mensagemMinhasPropostas()}}
+      </div>
+      <div *ngIf="mensagemAguardandoRetorno()!=''">
+        {{mensagemAguardandoRetorno()}}
+      </div>
+      <div *ngIf="mensagemFinalizadas()!=''">
+        {{mensagemFinalizadas()}}
+      </div>
+    </strong>
+
+    <button type="button" class="btn-close" aria-label="Close"
+      (click)="mensagemOportunidades.set(''); 
+              mensagemMinhasPropostas.set(''); 
+              mensagemAguardandoRetorno.set(''); 
+              mensagemFinalizadas.set('')">
+    </button>
+  </div>
+
+  <!-- CARDS SUPERIORES -->
+  <div class="row g-3">
+
+    <!-- Oportunidades -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card dash-card" routerLink="/fornecedor/oportunidades">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title text-muted mb-1">Oportunidades</h6>
+              <h3 class="mb-0">{{totalOportunidades()}}</h3>
+            </div>
+            <div class="dash-icon bg-primary-subtle">📩</div>
+          </div>
+          <small class="text-muted">Cotações abertas para responder</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Minhas propostas -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card dash-card" routerLink="/fornecedor/minhas-propostas">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title text-muted mb-1">Minhas propostas</h6>
+              <h3 class="mb-0">{{totalMinhasPropostas()}}</h3>
+            </div>
+            <div class="dash-icon bg-success-subtle">📤</div>
+          </div>
+          <small class="text-muted">Enviadas por você</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aguardando retorno -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card dash-card" routerLink="/fornecedor/minhas-propostas">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title text-muted mb-1">Aguardando retorno</h6>
+              <h3 class="mb-0">{{totalAguardandoRetorno()}}</h3>
+            </div>
+            <div class="dash-icon bg-warning-subtle">⏳</div>
+          </div>
+          <small class="text-muted">Em análise pela empresa</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Finalizadas -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card dash-card" routerLink="/fornecedor/minhas-propostas">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title text-muted mb-1">Finalizadas</h6>
+              <h3 class="mb-0">{{totalFinalizadas()}}</h3>
+            </div>
+            <div class="dash-icon bg-info-subtle">✅</div>
+          </div>
+          <small class="text-muted">Aceitas/recusadas</small>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ÁREA INFERIOR -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          Últimas oportunidades
+        </div>
+        <div class="card-body">
+          <p class="text-muted mb-0">
+            Aqui depois vamos listar as últimas cotações abertas e o status das suas propostas.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+

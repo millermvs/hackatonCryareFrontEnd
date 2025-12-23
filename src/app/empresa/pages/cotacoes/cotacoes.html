@@ -1,0 +1,368 @@
+<div class="container-fluid cotacoes-page">
+
+  <!-- TÍTULO + BOTÃO -->
+  <div class="row mb-4 align-items-center">
+    <div class="col">
+      <h2 class="mb-0">Cotações</h2>
+      <small class="text-muted">Gerencie e acompanhe cotações por fornecedor</small>
+    </div>
+
+    <div class="col-auto">
+      <button class="btn btn-criare" type="button" data-bs-toggle="modal" data-bs-target="#modalCadastroCotacao">
+        + Nova Cotação
+      </button>
+    </div>
+  </div>
+
+  <!-- ALERTA PÁGINA -->
+  <div *ngIf="mensagemPagPrincipal() !== ''" class="alert alert-{{ tipoMensagem() }} alert-dismissible fade show">
+    <strong>{{ mensagemPagPrincipal() }}</strong>
+    <button type="button" class="btn-close" (click)="mensagemPagPrincipal.set('')"></button>
+  </div>
+
+  <!-- CARD PRINCIPAL -->
+  <div class="card cotacoes-card">
+
+    <!-- HEADER -->
+    <div class="card-header">
+      <div class="row align-items-center">
+        <div class="col text-center">
+          <span class="fw-bold fs-5">Cotações cadastradas</span>
+        </div>
+
+        <div class="col-auto">
+          <!-- FILTRO POR FORNECEDOR -->
+          <form class="d-flex align-items-center" [formGroup]="formPesquisarCotacao">
+
+            <select class="form-select search-input" formControlName="idFornecedor">
+              <option value="">Selecione o fornecedor</option>
+              <option *ngFor="let f of fornecedores()" [value]="f.idFornecedor ?? f.id">
+                {{ f.nomeFornecedor ?? f.nome }}
+              </option>
+            </select>
+
+            <button class="sidebar-btn ms-2" type="button" (click)="pesquisarPorFornecedor()">
+              🔍
+            </button>
+
+            <button class="sidebar-btn ms-2" type="button" *ngIf="ativarBodyPesquisa()" (click)="consultarCotacoes(0)">
+              ✖️
+            </button>
+
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABELA -->
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+
+          <thead>
+            <tr>
+              <th>Fornecedor</th>
+              <th>Serviço</th>
+              <th>Valor</th>
+              <th>Status</th>
+              <th>Data</th>
+              <th style="width: 200px;">Ações</th>
+            </tr>
+          </thead>
+
+          <!-- LISTAGEM NORMAL -->
+          <tbody *ngIf="!ativarBodyPesquisa()">
+            <tr *ngFor="let c of cotacoes()">
+              <td>{{ c.nomeFornecedor ?? c.fornecedor?.nomeFornecedor ?? c.fornecedor?.nome }}</td>
+              <td>{{ c.tipoServico ?? c.servico?.tipoServico ?? '-' }}</td>
+              <td>R$ {{ c.valorCotacao ?? c.valorCotacao ?? 0 }}</td>
+              <td>
+                <span class="badge rounded-pill bg-secondary">
+                  {{ c.statusServico ?? c.status ?? 'PENDENTE' }}
+                </span>
+              </td>
+              <td>{{ c.dataCotacao ?? c.dataCriacao ?? '-' }}</td>
+
+              <td>
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal"
+                    data-bs-target="#modalDetalhesCotacao" (click)="abrirModalDetalhes(c)">
+                    Aceitar
+                  </button>
+
+                  <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal"
+                    data-bs-target="#modalRenegociarCotacao" (click)="abrirModalRenegociar(c)">
+                    Renegociar
+                  </button>
+
+
+
+
+                  <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                    data-bs-target="#modalConfirmarDeleteCotacao" (click)="abrirModalConfirmarDelete(c)">
+                    Recusar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+
+          <!-- LISTAGEM FILTRADA (POR FORNECEDOR) -->
+          <tbody *ngIf="ativarBodyPesquisa()">
+            <tr *ngFor="let c of cotacoesFounds()">
+              <td>{{ c.nomeFornecedor ?? c.fornecedor?.nomeFornecedor ?? c.fornecedor?.nome }}</td>
+              <td>{{ c.tipoServico ?? c.servico?.tipoServico ?? '-' }}</td>
+              <td>R$ {{ c.valorCotacao ?? c.valor ?? 0 }}</td>
+              <td>
+                <span class="badge rounded-pill bg-secondary">
+                  {{ c.statusCotacao ?? c.status ?? 'PENDENTE' }}
+                </span>
+              </td>
+              <td>{{ c.dataCotacao ?? c.dataCriacao ?? '-' }}</td>
+
+              <td>
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal"
+                    data-bs-target="#modalDetalhesCotacao" (click)="abrirModalDetalhes(c)">
+                    Aceitar
+                  </button>
+
+                  <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                    data-bs-target="#modalConfirmarDeleteCotacao" (click)="abrirModalConfirmarDelete(c)">
+                    Recusar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+      </div>
+    </div>
+
+    <!-- PAGINAÇÃO (SÓ NO NORMAL) -->
+    <nav class="pagination-container" *ngIf="!ativarBodyPesquisa()">
+      <ul class="pagination-dark">
+
+        <li>
+          <button class="page-btn" [class.disabled]="paginaAtual() === 0" (click)="irParaPagina(paginaAtual() - 1)">
+            ‹
+          </button>
+        </li>
+
+        <li *ngFor="let page of totalPaginasArray()">
+          <button class="page-btn" [class.active]="page === paginaAtual()" (click)="irParaPagina(page)">
+            {{ page + 1 }}
+          </button>
+        </li>
+
+        <li>
+          <button class="page-btn" [class.disabled]="paginaAtual() === totalPaginas() - 1"
+            (click)="irParaPagina(paginaAtual() + 1)">
+            ›
+          </button>
+        </li>
+
+      </ul>
+    </nav>
+
+  </div>
+</div>
+
+<!-- ================= MODAL CADASTRO COTAÇÃO ================= -->
+<div class="modal fade" id="modalCadastroCotacao" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-criare">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Nova Cotação</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form [formGroup]="formAddCotacao" (ngSubmit)="addCotacao()">
+
+        <div class="modal-body">
+
+          <div class="mb-3">
+            <label class="form-label">Fornecedor</label>
+            <select class="form-select" formControlName="idFornecedor">
+              <option value="" disabled selected>Selecione o fornecedor</option>
+              <option *ngFor="let f of fornecedores()" [value]="f.idFornecedor ?? f.id">
+                {{ f.nomeFornecedor ?? f.nome }}
+              </option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Tipo de serviço</label>
+            <select class="form-select" formControlName="tipoServico">
+              <option value="" disabled selected>Selecione o tipo</option>
+              <option value="TECNOLOGIA">Tecnologia</option>
+              <option value="ENSINO">Ensino</option>
+              <option value="SAUDE">Saúde</option>
+              <option value="CONSULTORIA">Consultoria</option>
+              <option value="SUPORTE">Suporte</option>
+              <option value="MANUTENCAO">Manutenção</option>
+              <option value="TREINAMENTO">Treinamento</option>
+              <option value="OUTROS">Outros</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Valor</label>
+            <input type="number" class="form-control" formControlName="valorCotacao" placeholder="Ex: 3000">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Descrição</label>
+            <textarea class="form-control" rows="3" formControlName="descricaoCotacao"
+              placeholder="Descreva o que está sendo cotado"></textarea>
+          </div>
+
+          <div *ngIf="mensagemModal() !== ''" class="alert alert-{{ tipoMensagem() }} alert-dismissible fade show">
+            <strong>{{ mensagemModal() }}</strong>
+            <button type="button" class="btn-close" (click)="mensagemModal.set('')"></button>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+
+          <button type="submit" class="btn btn-criare" [disabled]="formAddCotacao.invalid">
+            Salvar
+          </button>
+
+          <button #btnCloseAddModal type="button" class="d-none" data-bs-dismiss="modal"></button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL DETALHES ================= -->
+<div class="modal fade" id="modalDetalhesCotacao" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-criare">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Detalhes da Cotação</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p><strong>Fornecedor:</strong> {{ cotacaoSelecionada?.nomeFornecedor ?? cotacaoSelecionada?.fornecedor?.nome }}
+        </p>
+        <p><strong>Tipo:</strong> {{ cotacaoSelecionada?.tipoServico ?? '-' }}</p>
+        <p><strong>Valor:</strong> R$ {{ cotacaoSelecionada?.valorCotacao ?? 0 }}</p>
+        <p><strong>Status:</strong> {{ cotacaoSelecionada?.statusCotacao ?? 'PENDENTE' }}</p>
+        <p><strong>Descrição:</strong> {{ cotacaoSelecionada?.descricaoCotacao ?? '-' }}</p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Fechar
+        </button>
+        <button type="button" class="btn btn-dark" data-bs-dismiss="modal" (click)="aceitarCotacao(cotacaoSelecionada)">
+          Confirmar
+        </button>
+
+
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL DELETE ================= -->
+<div class="modal fade" id="modalConfirmarDeleteCotacao" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-criare">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar exclusão</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p>
+          Tem certeza que deseja excluir esta cotação do fornecedor
+          <strong>{{ cotacaoSelecionadaParaDelete?.nomeFornecedor ?? cotacaoSelecionadaParaDelete?.fornecedor?.nome
+            }}</strong>?
+        </p>
+        <p class="text-muted mb-0">Essa ação não poderá ser desfeita.</p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-danger" (click)="deletarCotacao()" data-bs-dismiss="modal">
+          Excluir
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- ================= MODAL RENEGOCIAR COTAÇÃO ================= -->
+<div class="modal fade" id="modalRenegociarCotacao" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-criare">
+
+      <!-- Cabeçalho -->
+      <div class="modal-header">
+        <h5 class="modal-title text-warning">Renegociar Cotação</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Formulário -->
+      <form [formGroup]="formRenegociarCotacao" (ngSubmit)="renegociarCotacao()">
+
+        <div class="modal-body">
+
+          <!-- Valor -->
+          <div class="mb-3">
+            <label class="form-label">Novo valor</label>
+            <input type="number" class="form-control" formControlName="novoValor" placeholder="Ex: 1500.00">
+          </div>
+
+          <!-- Prazo -->
+          <div class="mb-3">
+            <label class="form-label">Novo prazo</label>
+            <input type="text" class="form-control" formControlName="novoPrazo" placeholder="Ex: 30 dias">
+          </div>
+
+          <!-- Observação -->
+          <div class="mb-3">
+            <label class="form-label">Observação</label>
+            <textarea class="form-control" rows="3" formControlName="observacao"
+              placeholder="Descreva a proposta de renegociação"></textarea>
+          </div>
+
+          <!-- Alerta -->
+          <div *ngIf="mensagemModal() !== ''" class="alert alert-{{ tipoMensagem() }} mt-3">
+            {{ mensagemModal() }}
+          </div>
+
+        </div>
+
+        <!-- Rodapé -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+
+          <button type="submit" class="btn btn-warning" [disabled]="formRenegociarCotacao.invalid">
+            Enviar renegociação
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>

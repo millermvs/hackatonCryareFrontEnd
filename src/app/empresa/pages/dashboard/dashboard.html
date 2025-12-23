@@ -1,0 +1,116 @@
+<!-- empresa/pages/dashboard/dashboard.component.html -->
+<div class="container-fluid dashboard-page">
+
+  <!-- TÍTULO -->
+  <div class="row mb-4">
+    <div class="col">
+      <h2 class="mb-0">Dashboard</h2>
+      <small class="text-muted">Visão geral das cotações e fornecedores</small>
+    </div>
+  </div>
+
+  <!-- ALERTAS -->
+  <div
+    *ngIf="mensagemFornecedores() || mensagemCotacoesAbertas() || mensagemPropostasRecebidas() || mensagemFinalizadas()"
+    class="alert alert-danger alert-dismissible fade show">
+    <strong>
+      <div *ngIf="mensagemFornecedores()">{{ mensagemFornecedores() }}</div>
+      <div *ngIf="mensagemCotacoesAbertas()">{{ mensagemCotacoesAbertas() }}</div>
+      <div *ngIf="mensagemPropostasRecebidas()">{{ mensagemPropostasRecebidas() }}</div>
+      <div *ngIf="mensagemFinalizadas()">{{ mensagemFinalizadas() }}</div>
+    </strong>
+    <button type="button" class="btn-close" aria-label="Close"
+      (click)="mensagemFornecedores.set(''); 
+               mensagemCotacoesAbertas.set(''); 
+               mensagemPropostasRecebidas.set(''); 
+               mensagemFinalizadas.set('')">
+    </button>
+  </div>
+
+  <!-- CARDS -->
+  <div class="row g-3">
+
+    <!-- Fornecedores -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card dash-card" routerLink="/empresa/fornecedores">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title text-muted mb-1">Fornecedores</h6>
+              <h3 class="mb-0">{{ totalFornecedores() }}</h3>
+            </div>
+            <div class="dash-icon bg-success-subtle">👤</div>
+          </div>
+          <small class="text-muted">Fornecedores cadastrados</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cotações abertas -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card dash-card" routerLink="/empresa/servicos">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title text-muted mb-1">Serviços abertos</h6>
+              <h3 class="mb-0">{{ totalsrvicosAbertos() }}</h3>
+            </div>
+            <div class="dash-icon bg-primary-subtle">🛠️</div>
+          </div>
+          <small class="text-muted">Aguardando propostas</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Propostas recebidas -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card dash-card" routerLink="/empresa/cotacoes">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title text-muted mb-1">Com Propostas</h6>
+              <h3 class="mb-0">{{ totalPropostasRecebidas() }}</h3>
+            </div>
+            <div class="dash-icon bg-warning-subtle">📥</div>
+          </div>
+          <small class="text-muted">Recebidas dos fornecedores</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Finalizadas -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card dash-card" routerLink="/empresa/cotacoes">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title text-muted mb-1">Finalizadas</h6>
+              <h3 class="mb-0">{{ totalFinalizadas() }}</h3>
+            </div>
+            <div class="dash-icon bg-info-subtle">✅</div>
+          </div>
+          <small class="text-muted">Cotações encerradas</small>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ÁREA INFERIOR -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          Últimas cotações
+        </div>
+        <div class="card-body">
+          <p class="text-muted mb-0">
+            Aqui depois vamos listar as últimas cotações criadas e o status de cada uma.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+

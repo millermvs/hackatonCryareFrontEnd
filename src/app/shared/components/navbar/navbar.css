@@ -1,0 +1,86 @@
+.app-layout {
+  height: 100vh;              /* ocupa a tela toda */
+}
+
+/* ----- SIDEBAR BASE ----- */
+.sidebar {
+  background-color: #f8f9fa;
+  border-right: 1px solid #dee2e6;
+  width: 48px;                /* menu ESTREITO (só ícones) */
+  transition: width 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* ----- SIDEBAR QUANDO EXPANDIDO ----- */
+.sidebar.sidebar-expanded {
+  width: 160px;               /* menu LARGO (ícone + texto) */
+}
+
+/* Botão do topo (tipo o quadradinho do Firefox) */
+.toggle-btn {
+  border: none;
+  background: transparent;
+  padding: 12px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.toggle-btn:hover {
+  background-color: #e9ecef;
+}
+
+.toggle-btn, .close-btn {
+  border: none;
+  background: transparent;
+  padding: 12px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.close-btn {
+  text-align: right; /* o X fica no canto direito */
+  padding-right: 16px;
+}
+
+
+/* ----- ITENS DO MENU ----- */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+}
+
+.menu-item:hover {
+  background-color: #e9ecef;
+}
+
+/* Ícone sempre visível */
+.menu-icon {
+  font-size: 18px;
+}
+
+/* Texto do menu: some quando estiver fechado */
+.sidebar:not(.sidebar-expanded) .menu-label {
+  display: none;
+}
+
+/* Garante que o texto não quebre feio quando aberto */
+.menu-label {
+  white-space: nowrap;
+}

@@ -1,0 +1,112 @@
+/* Página */
+.fornecedores-page {
+  padding: 8px;
+}
+
+/* Botão principal */
+.btn-criare {
+  background-color: #0b1c2d;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 6px 16px;
+}
+
+.btn-criare:hover {
+  background-color: #132f4c;
+}
+
+/* Card */
+.fornecedores-card {
+  border-radius: 14px;
+  border: none;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Header do card */
+.fornecedores-card .card-header {
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+/* Tabela */
+.table thead {
+  background-color: #f1f3f5;
+}
+
+.table th {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.table td {
+  font-size: 0.9rem;
+}
+
+/* Paginação */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+}
+
+.pagination-dark {
+  list-style: none;
+  display: inline-flex;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+}
+
+.page-btn {
+  background: #0b1c2d;
+  color: #eaeaea;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+}
+
+.page-btn:hover {
+  background: #132f4c;
+  transform: translateY(-2px);
+}
+
+.page-btn.active {
+  background: #132f4c;
+  font-weight: bold;
+}
+
+.page-btn.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Campo de pesquisa */
+.search-input {
+  height: 38px;
+}
+
+/* Botão de busca */
+.sidebar-btn {
+  background-color: #f8f9fa;
+  border: 1px solid #f8f9fa;
+  border-radius: 6px;
+  width: 40px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.sidebar-btn:hover {
+  background-color: #e9ecef;
+}
+
+/* Modal */
+.modal-criare {
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}

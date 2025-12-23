@@ -1,0 +1,249 @@
+<div class="container-fluid servicos-page">
+
+  <!-- TÍTULO + BOTÃO -->
+  <div class="row mb-4 align-items-center">
+    <div class="col">
+      <h2 class="mb-0">Serviços</h2>
+      <small class="text-muted">Lance os serviços que precisa para cotação</small>
+    </div>
+
+    <div class="col-auto">
+      <button class="btn btn-criare" type="button" data-bs-toggle="modal" data-bs-target="#modalCadastroServico">
+        + Novo Serviço
+      </button>
+    </div>
+  </div>
+
+  <!-- ALERTA -->
+  <div *ngIf="mensagemPagPrincipal() !== ''" class="alert alert-{{tipoMensagem()}} alert-dismissible fade show">
+    <strong>{{ mensagemPagPrincipal() }}</strong>
+    <button type="button" class="btn-close" (click)="mensagemPagPrincipal.set('')"></button>
+  </div>
+
+  <!-- CARD -->
+  <div class="card servicos-card">
+
+    <!-- HEADER -->
+    <div class="card-header">
+      <div class="row align-items-center">
+
+        <div class="col text-center">
+          <span class="fw-bold fs-5">Serviços cadastrados em aberto</span>
+        </div>
+
+        <div class="col-auto">
+          <form class="d-flex align-items-center" [formGroup]="formPesquisarServico">
+
+            <select class="form-select search-input" formControlName="nomeServico">
+              <option value="">Todos os tipos</option>
+              <option value="TECNOLOGIA">Tecnologia</option>
+              <option value="ENSINO">Ensino</option>
+              <option value="SAUDE">Saúde</option>
+              <option value="CONSULTORIA">Consultoria</option>
+              <option value="SUPORTE">Suporte</option>
+              <option value="MANUTENCAO">Manutenção</option>
+              <option value="TREINAMENTO">Treinamento</option>
+              <option value="OUTROS">Outros</option>
+            </select>
+
+            <button class="sidebar-btn ms-2" type="button" (click)="pesquisarPorTipoServico()">
+              🔍
+            </button>
+
+          </form>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TABELA -->
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Descrição</th>
+              <th style="width: 160px;">Ações</th>
+            </tr>
+          </thead>
+
+          <!-- LISTAGEM NORMAL -->
+          <tbody *ngIf="!ativarBodyPesquisa()">
+            <tr *ngFor="let servico of servicos()">
+              <td>{{ servico.tipoServico }}</td>
+              <td>{{ servico.descricaoServico }}</td>
+              <td>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="modal"
+                    data-bs-target="#modalEditarServico" (click)="abrirModalEditar(servico)">
+                    Editar
+                  </button>
+
+                </div>
+              </td>
+            </tr>
+          </tbody>
+
+          <!-- LISTAGEM PESQUISA -->
+          <tbody *ngIf="ativarBodyPesquisa()">
+            <tr *ngFor="let servico of servicosFounds()">
+              <td>{{ servico.tipoServico }}</td>
+              <td>{{ servico.descricaoServico }}</td>
+              <td>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="modal"
+                    data-bs-target="#modalEditarServico" (click)="abrirModalEditar(servico)">
+                    Editar
+                  </button>
+
+                </div>
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+      </div>
+    </div>
+
+    <!-- PAGINAÇÃO -->
+    <nav class="pagination-container" *ngIf="!ativarBodyPesquisa()">
+      <ul class="pagination-dark">
+
+        <li>
+          <button class="page-btn" [class.disabled]="paginaAtual() === 0" (click)="irParaPagina(paginaAtual() - 1)">
+            ‹
+          </button>
+        </li>
+
+        <li *ngFor="let page of totalPaginasArray()">
+          <button class="page-btn" [class.active]="page === paginaAtual()" (click)="irParaPagina(page)">
+            {{ page + 1 }}
+          </button>
+        </li>
+
+        <li>
+          <button class="page-btn" [class.disabled]="paginaAtual() === totalPaginas() - 1"
+            (click)="irParaPagina(paginaAtual() + 1)">
+            ›
+          </button>
+        </li>
+
+      </ul>
+    </nav>
+
+  </div>
+</div>
+
+<!-- ================= MODAL CADASTRO SERVIÇO ================= -->
+<div class="modal fade" id="modalCadastroServico" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-criare">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Cadastrar Serviço</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form [formGroup]="formAddServico" (ngSubmit)="addServico()">
+
+        <div class="modal-body">
+
+          <div class="mb-3">
+            <label class="form-label">Tipo de serviço</label>
+            <select class="form-select" formControlName="tipoServico">
+              <option value="" disabled selected>Selecione o tipo</option>
+              <option value="TECNOLOGIA">Tecnologia</option>
+              <option value="ENSINO">Ensino</option>
+              <option value="SAUDE">Saúde</option>
+              <option value="CONSULTORIA">Consultoria</option>
+              <option value="SUPORTE">Suporte</option>
+              <option value="MANUTENCAO">Manutenção</option>
+              <option value="TREINAMENTO">Treinamento</option>
+              <option value="OUTROS">Outros</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Descrição</label>
+            <textarea class="form-control" rows="3" formControlName="descricaoServico"
+              placeholder="Descreva brevemente o serviço"></textarea>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+
+          <button type="submit" class="btn btn-criare" [disabled]="formAddServico.invalid">
+            Salvar
+          </button>
+
+          <button #btnCloseAddModal type="button" class="d-none" data-bs-dismiss="modal"></button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL EDITAR DESCRIÇÃO SERVIÇO ================= -->
+<div class="modal fade" id="modalEditarServico" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-criare">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Editar descrição do serviço</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form [formGroup]="formEditServico" (ngSubmit)="editarServico()">
+
+        <div class="modal-body">
+
+          <!-- TIPO (SÓ VISUAL / BLOQUEADO) -->
+          <div class="mb-3">
+            <label class="form-label">Tipo de serviço</label>
+            <input type="text" class="form-control" [value]="servicoSelecionadoParaEditar?.tipoServico" disabled>
+          </div>
+
+          <!-- DESCRIÇÃO (EDITÁVEL) -->
+          <div class="mb-3">
+            <label class="form-label">Descrição</label>
+            <textarea class="form-control" rows="3" formControlName="descricaoServico"
+              placeholder="Atualize a descrição do serviço" [class.is-invalid]="formEditServico.get('descricaoServico')?.invalid 
+                        && formEditServico.get('descricaoServico')?.touched"></textarea>
+
+            <div class="invalid-feedback">
+              Descrição é obrigatória (máx. 255 caracteres).
+            </div>
+          </div>
+
+          <!-- ALERTA MODAL (OPCIONAL) -->
+          <div *ngIf="mensagemModal() !== ''" class="alert alert-{{tipoMensagem()}} alert-dismissible fade show">
+            <strong>{{ mensagemModal() }}</strong>
+            <button type="button" class="btn-close" (click)="mensagemModal.set('')"></button>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+
+          <button type="submit" class="btn btn-criare" [disabled]="formEditServico.invalid">
+            Salvar
+          </button>
+
+          <button #btnCloseEditModal type="button" class="d-none" data-bs-dismiss="modal"></button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>

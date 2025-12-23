@@ -1,0 +1,378 @@
+<div class="container-fluid fornecedores-page">
+
+  <!-- TÍTULO + BOTÃO -->
+  <div class="row mb-4 align-items-center">
+    <div class="col">
+      <h2 class="mb-0">Fornecedores</h2>
+      <small class="text-muted">Gerencie os fornecedores cadastrados</small>
+    </div>
+
+    <div class="col-auto">
+      <button class="btn btn-criare" type="button" data-bs-toggle="modal" data-bs-target="#modalCadastroFornecedor">
+        + Novo Fornecedor
+      </button>
+    </div>
+  </div>
+
+  <!-- ALERTA -->
+  <div *ngIf="mensagemPagPrincipal() !== ''" class="alert alert-{{tipoMensagem()}} alert-dismissible fade show">
+    <strong>{{ mensagemPagPrincipal() }}</strong>
+    <button type="button" class="btn-close" (click)="mensagemPagPrincipal.set('')"></button>
+  </div>
+
+  <!-- CARD PRINCIPAL -->
+  <div class="card fornecedores-card">
+
+    <!-- HEADER -->
+    <div class="card-header">
+      <div class="row align-items-center">
+
+        <div class="col text-center">
+          <span class="fw-bold fs-5">Fornecedores cadastrados</span>
+        </div>
+
+        <div class="col-auto">
+          <form class="d-flex align-items-center" [formGroup]="formPesquisarFornecedor">
+
+            <select class="form-select search-input" formControlName="tipoServico">
+              <option value="">Todos os tipos</option>
+              <option value="TECNOLOGIA">Tecnologia</option>
+              <option value="ENSINO">Ensino</option>
+              <option value="SAUDE">Saúde</option>
+              <option value="CONSULTORIA">Consultoria</option>
+              <option value="SUPORTE">Suporte</option>
+              <option value="MANUTENCAO">Manutenção</option>
+              <option value="TREINAMENTO">Treinamento</option>
+              <option value="OUTROS">Outros</option>
+            </select>
+
+            <button class="sidebar-btn ms-2" type="button" (click)="pesquisarFornecedorPorTipo(0)">
+              🔍
+            </button>
+
+          </form>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TABELA -->
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Fornecedor</th>
+              <th>Serviço</th>
+              <th>Contato</th>
+              <th style="width: 180px;">Ações</th>
+            </tr>
+          </thead>
+
+          <!-- LISTAGEM NORMAL -->
+          <tbody *ngIf="!ativarBodyPesquisa()">
+            <tr *ngFor="let fornecedor of fornecedores()">
+              <td>{{ fornecedor.nomeFornecedor }}</td>
+              <td>{{ fornecedor.tipoServico }}</td>
+              <td>{{ fornecedor.whatsAppFornecedor }}</td>
+
+              <td>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="modal"
+                    data-bs-target="#modalEditarFornecedor" (click)="abrirModalEditarFornecedor(fornecedor)">
+                    Editar
+                  </button>
+
+                  <button class="btn btn-sm btn-outline-danger" type="button" data-bs-toggle="modal"
+                    data-bs-target="#modalExcluirFornecedor" (click)="abrirModalExcluirFornecedor(fornecedor)">
+                    Excluir
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+
+          <!-- LISTAGEM PESQUISA -->
+          <tbody *ngIf="ativarBodyPesquisa()">
+            <tr *ngFor="let fornecedor of fornecedoresFounds()">
+              <td>{{ fornecedor.nomeFornecedor }}</td>
+              <td>{{ fornecedor.tipoServico }}</td>
+              <td>{{ fornecedor.whatsAppFornecedor }}</td>
+
+              <td>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="modal"
+                    data-bs-target="#modalEditarFornecedor" (click)="abrirModalEditarFornecedor(fornecedor)">
+                    Editar
+                  </button>
+
+                  <button class="btn btn-sm btn-outline-danger" type="button" data-bs-toggle="modal"
+                    data-bs-target="#modalExcluirFornecedor" (click)="abrirModalExcluirFornecedor(fornecedor)">
+                    Excluir
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+      </div>
+    </div>
+
+    <!-- PAGINAÇÃO (FUNCIONA NOS 2 MODOS) -->
+    <nav class="pagination-container" *ngIf="totalPaginas() > 1">
+      <ul class="pagination-dark">
+
+        <li>
+          <button class="page-btn"
+            [disabled]="paginaAtual() === 0"
+            (click)="irParaPagina(paginaAtual() - 1)">
+            ‹
+          </button>
+        </li>
+
+        <li *ngFor="let page of totalPaginasArray()">
+          <button class="page-btn"
+            [class.active]="page === paginaAtual()"
+            (click)="irParaPagina(page)">
+            {{ page + 1 }}
+          </button>
+        </li>
+
+        <li>
+          <button class="page-btn"
+            [disabled]="paginaAtual() === totalPaginas() - 1"
+            (click)="irParaPagina(paginaAtual() + 1)">
+            ›
+          </button>
+        </li>
+
+      </ul>
+    </nav>
+
+  </div>
+</div>
+
+<!-- ================= MODAL CADASTRO FORNECEDOR ================= -->
+<div class="modal fade" id="modalCadastroFornecedor" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-criare">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Cadastrar Fornecedor</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form [formGroup]="formAddFornecedor" (ngSubmit)="addFornecedor()">
+
+        <div class="modal-body">
+
+          <!-- NOME -->
+          <div class="mb-3">
+            <label class="form-label">Nome do fornecedor</label>
+            <input type="text" class="form-control" formControlName="nomeFornecedor"
+              placeholder="Ex: Fornecedor XYZ"
+              [class.is-invalid]="formAddFornecedor.get('nomeFornecedor')?.invalid && formAddFornecedor.get('nomeFornecedor')?.touched" />
+            <div class="invalid-feedback">
+              Nome é obrigatório (máx. 100 caracteres).
+            </div>
+          </div>
+
+          <!-- CNPJ -->
+          <div class="mb-3">
+            <label class="form-label">CNPJ</label>
+            <input type="text" class="form-control" formControlName="cnpjFornecedor"
+              placeholder="00.000.000/0000-00"
+              [class.is-invalid]="formAddFornecedor.get('cnpjFornecedor')?.invalid && formAddFornecedor.get('cnpjFornecedor')?.touched" />
+            <div class="invalid-feedback">
+              CNPJ é obrigatório.
+            </div>
+          </div>
+
+          <!-- WHATSAPP -->
+          <div class="mb-3">
+            <label class="form-label">WhatsApp</label>
+            <input type="text" class="form-control" formControlName="whatsAppFornecedor"
+              placeholder="(00) 00000-0000"
+              [class.is-invalid]="formAddFornecedor.get('whatsAppFornecedor')?.invalid && formAddFornecedor.get('whatsAppFornecedor')?.touched" />
+            <div class="invalid-feedback">
+              WhatsApp é obrigatório.
+            </div>
+          </div>
+
+          <!-- EMAIL -->
+          <div class="mb-3">
+            <label class="form-label">E-mail</label>
+            <input type="email" class="form-control" formControlName="emailFornecedor"
+              placeholder="fornecedor@email.com"
+              [class.is-invalid]="formAddFornecedor.get('emailFornecedor')?.invalid && formAddFornecedor.get('emailFornecedor')?.touched" />
+            <div class="invalid-feedback">
+              E-mail é obrigatório e deve ser válido.
+            </div>
+          </div>
+
+          <!-- TIPO SERVIÇO -->
+          <div class="mb-3">
+            <label class="form-label">Tipo de serviço</label>
+            <select class="form-select" formControlName="tipoServico"
+              [class.is-invalid]="formAddFornecedor.get('tipoServico')?.invalid && formAddFornecedor.get('tipoServico')?.touched">
+              <option value="" disabled selected>Selecione o tipo</option>
+              <option value="TECNOLOGIA">Tecnologia</option>
+              <option value="ENSINO">Ensino</option>
+              <option value="SAUDE">Saúde</option>
+              <option value="CONSULTORIA">Consultoria</option>
+              <option value="SUPORTE">Suporte</option>
+              <option value="MANUTENCAO">Manutenção</option>
+              <option value="TREINAMENTO">Treinamento</option>
+              <option value="OUTROS">Outros</option>
+            </select>
+            <div class="invalid-feedback">
+              Tipo de serviço é obrigatório.
+            </div>
+          </div>
+
+          <!-- ALERTA MODAL -->
+          <div *ngIf="mensagemModal() !== ''" class="alert alert-{{tipoMensagem()}} alert-dismissible fade show">
+            <strong>{{ mensagemModal() }}</strong>
+            <button type="button" class="btn-close" (click)="mensagemModal.set('')"></button>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-criare" [disabled]="formAddFornecedor.invalid">Salvar</button>
+          <button #btnCloseAddFornecedorModal type="button" class="d-none" data-bs-dismiss="modal"></button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL EDITAR FORNECEDOR ================= -->
+<div class="modal fade" id="modalEditarFornecedor" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-criare">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Editar fornecedor</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form [formGroup]="formEditFornecedor" (ngSubmit)="editarFornecedor()">
+
+        <div class="modal-body">
+
+          <!-- NOME -->
+          <div class="mb-3">
+            <label class="form-label">Nome do fornecedor</label>
+            <input type="text" class="form-control" formControlName="nomeFornecedor"
+              [class.is-invalid]="formEditFornecedor.get('nomeFornecedor')?.invalid && formEditFornecedor.get('nomeFornecedor')?.touched" />
+            <div class="invalid-feedback">
+              Nome é obrigatório (máx. 100 caracteres).
+            </div>
+          </div>
+
+          <!-- CNPJ -->
+          <div class="mb-3">
+            <label class="form-label">CNPJ</label>
+            <input type="text" class="form-control" formControlName="cnpjFornecedor"
+              [class.is-invalid]="formEditFornecedor.get('cnpjFornecedor')?.invalid && formEditFornecedor.get('cnpjFornecedor')?.touched" />
+            <div class="invalid-feedback">
+              CNPJ é obrigatório.
+            </div>
+          </div>
+
+          <!-- WHATSAPP -->
+          <div class="mb-3">
+            <label class="form-label">WhatsApp</label>
+            <input type="text" class="form-control" formControlName="whatsAppFornecedor"
+              [class.is-invalid]="formEditFornecedor.get('whatsAppFornecedor')?.invalid && formEditFornecedor.get('whatsAppFornecedor')?.touched" />
+            <div class="invalid-feedback">
+              WhatsApp é obrigatório.
+            </div>
+          </div>
+
+          <!-- EMAIL -->
+          <div class="mb-3">
+            <label class="form-label">E-mail</label>
+            <input type="email" class="form-control" formControlName="emailFornecedor"
+              [class.is-invalid]="formEditFornecedor.get('emailFornecedor')?.invalid && formEditFornecedor.get('emailFornecedor')?.touched" />
+            <div class="invalid-feedback">
+              E-mail é obrigatório e deve ser válido.
+            </div>
+          </div>
+
+          <!-- TIPO SERVIÇO -->
+          <div class="mb-3">
+            <label class="form-label">Tipo de serviço</label>
+            <select class="form-select" formControlName="tipoServico"
+              [class.is-invalid]="formEditFornecedor.get('tipoServico')?.invalid && formEditFornecedor.get('tipoServico')?.touched">
+              <option value="" disabled>Selecione o tipo</option>
+              <option value="TECNOLOGIA">Tecnologia</option>
+              <option value="ENSINO">Ensino</option>
+              <option value="SAUDE">Saúde</option>
+              <option value="CONSULTORIA">Consultoria</option>
+              <option value="SUPORTE">Suporte</option>
+              <option value="MANUTENCAO">Manutenção</option>
+              <option value="TREINAMENTO">Treinamento</option>
+              <option value="OUTROS">Outros</option>
+            </select>
+            <div class="invalid-feedback">
+              Tipo de serviço é obrigatório.
+            </div>
+          </div>
+
+          <!-- ALERTA MODAL -->
+          <div *ngIf="mensagemModal() !== ''" class="alert alert-{{tipoMensagem()}} alert-dismissible fade show">
+            <strong>{{ mensagemModal() }}</strong>
+            <button type="button" class="btn-close" (click)="mensagemModal.set('')"></button>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-criare" [disabled]="formEditFornecedor.invalid">Salvar</button>
+          <button #btnCloseEditFornecedorModal type="button" class="d-none" data-bs-dismiss="modal"></button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL EXCLUIR FORNECEDOR ================= -->
+<div class="modal fade" id="modalExcluirFornecedor" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-criare">
+
+      <div class="modal-header">
+        <h5 class="modal-title text-danger">Confirmar exclusão</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p>
+          Tem certeza que deseja excluir o fornecedor
+          <strong>{{ fornecedorSelecionadoParaExcluir?.nomeFornecedor }}</strong>?
+        </p>
+
+        <div *ngIf="mensagemModal() !== ''" class="alert alert-{{tipoMensagem()}} alert-dismissible fade show">
+          <strong>{{ mensagemModal() }}</strong>
+          <button type="button" class="btn-close" (click)="mensagemModal.set('')"></button>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" (click)="excluirFornecedor()">Excluir</button>
+        <button #btnCloseExcluirFornecedorModal type="button" class="d-none" data-bs-dismiss="modal"></button>
+      </div>
+
+    </div>
+  </div>
+</div>
